@@ -1,0 +1,29 @@
+This is the implementation of the Relaxed Switched System Optimal Control algorithm described in the following publications:
+
+- R. Vasudevan, H. Gonzalez, R. Bajcsy, S. S. Sastry. “Consistent Approximations for the Optimal Control of Constrained Switched Systems — Part 1: A Conceptual Algorithm.” SIAM Journal on Optimization and Control, 2013.
+
+- R. Vasudevan, H. Gonzalez, R. Bajcsy, S. S. Sastry. “Consistent Approximations for the Optimal Control of Constrained Switched Systems — Part 2: An Implementable Algorithm.” SIAM Journal on Optimization and Control, 2013.
+
+The code currently relies on the use of TOMLAB to solve the internal quadratic program at each step, but it can be modified to use any reasonably well-implemented QP solver. This is at the top of our list of future improvements.
+
+Please send us an email if you find any bugs. We know some parts of the code are ugly and innefficient. We welcome any improvement you want to implement.
+
+
+Usage
+-----
+
+In Matlab run:
+> res = run_relax( config_file )
+where 'config_file' is a properly formatted configuration file readable by the function 'read_config.m'.
+
+
+Examples
+--------
+
+The following examples are included with the code:
+1. 'linear3d': Switched third-order linear system with three modes. All modes are unstable and uncontrollable on their own, but the system stable is controllable via switching. The cost is quadratic.
+2. 'needle': Flexible needle steering problem with two modes (rotate and push). The needle avoids spherical obstacles. The cost penalizes the distance to the desired final point.
+3. 'starmac': Bidimensional model of a quadrotor helicopter with three modes (rotate left, rotate right, up/down). One constraint modeling a minimum altitude (i.e. the floor). The cost penalizes the distance to a desired final point.
+4. 'tank': Two water tanks in series with two modes (low input flow and high input flow). The cost regulates the level of one of the tanks to a desired set-point.
+
+Each example contains a configuration file compatible with 'run_relax' (extension .conf).
