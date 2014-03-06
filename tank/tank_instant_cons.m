@@ -37,6 +37,6 @@ else
     end
     for k = 1:len_boxmin
         fx( len_obs + len_boxmax + k ) =  - x( bc_idxsmin( k ) ) + x_min( bc_idxsmin( k ) );
-        dfdx( len_obs + len_boxmax + k, bc_idxsmin( k ) ) = 1;
+        dfdx( len_obs + len_boxmax + k, bc_idxsmin( k ) ) = -1;
     end
 end
