@@ -103,7 +103,152 @@ if( strcmp( user.optfctn.solver, 'tomlab' ) == 1 )
     res.user = user;
     res.tlres = tlres;
     if ( res.value > user.numerical_tolerance )
-       warning('what the fuck');
+        warning('what the fuck');
+    end
+elseif( strcmp( user.optfctn.solver, 'cplex' ) == 1 )
+    % the optimization is taking place here over (up - u) and
+    % (dp - d) therefore all the upper and lower bounds are
+    % different here.
+    s_0 = state_encode( user, 0, u_p, d_p );
+    dummyD = ones( Nmodes, Nsamples );
+    s_L = state_encode( user, -Inf, repmat( user.u_min, 1, Nsamples ) - user.data.u, 0 * dummyD - user.data.d );
+    s_U = state_encode( user, 0, repmat( user.u_max, 1, Nsamples ) - user.data.u, dummyD - user.data.d );
+    [ F, c, A, b_L, b_U ] = encode_LP_cons( user ); % generates the cost and matrics QP formulation
+    
+    % cplex cannot handle upper and lower bound constraints simulateneously
+    % so we have reformat things to make it more amenable
+    Aineq = [ -A; A ];
+    bineq = [ -b_L; b_U ];
+    
+    %     call cplex to solve:
+    %     min     0.5*x'*F*x+f*x or c*x
+    %     st.     Aineq*x     <= bineq
+    %             s_L <= x <= s_U
+    [ res.s_end, res.value, res.inform, tlres ] = cplexqp( F, c, Aineq, bineq, [], [], s_L, s_U );
+    
+    % time to decode the output
+    [ res.zeta, up_u, dp_d ] = state_decode( user, res.s_end );
+    res.u_p = up_u + user.data.u;
+    res.d_p = dp_d + user.data.d;
+    res.s_0 = s_0; % keep in mind this is dp_d
+    res.time = tend + tlres.time;
+    res.user = user;
+    res.tlres = tlres;
+    if ( res.value > user.numerical_tolerance )
+        warning('what the fuck');
+    end
+elseif( strcmp( user.optfctn.solver, 'quadprog' ) == 1 )
+    % the optimization is taking place here over (up - u) and
+    % (dp - d) therefore all the upper and lower bounds are
+    % different here.
+    s_0 = state_encode( user, 0, u_p, d_p );
+    dummyD = ones( Nmodes, Nsamples );
+    s_L = state_encode( user, -Inf, repmat( user.u_min, 1, Nsamples ) - user.data.u, 0 * dummyD - user.data.d );
+    s_U = state_encode( user, 0, repmat( user.u_max, 1, Nsamples ) - user.data.u, dummyD - user.data.d );
+    [ F, c, A, b_L, b_U ] = encode_LP_cons( user ); % generates the cost and matrics QP formulation
+    
+    % quadprog cannot handle upper and lower bound constraints simulateneously
+    % so we have reformat things to make it more amenable
+    Aineq = [ -A; A ];
+    bineq = [ -b_L; b_U ];
+    
+    %     call quadprog to solve:
+    %     min     0.5*x'*F*x+f*x or c*x
+    %     st.     Aineq*x     <= bineq
+    %             s_L <= x <= s_U
+    tic;
+    [ res.s_end, res.value, res.inform, ~ ] = cplexqp( F, c, Aineq, bineq, [], [], s_L, s_U );
+    res.time = tend + toc();
+    
+    % time to decode the output
+    [ res.zeta, up_u, dp_d ] = state_decode( user, res.s_end );
+    res.u_p = up_u + user.data.u;
+    res.d_p = dp_d + user.data.d;
+    res.s_0 = s_0; % keep in mind this is dp_d
+    res.user = user;
+    res.tlres = [];
+    if ( res.value > user.numerical_tolerance )
+        warning('what the fuck');
+    end
+elseif( strcmp( user.optfctn.solver, 'gurobi' ) == 1 )
+    % the optimization is taking place here over (up - u) and
+    % (dp - d) therefore all the upper and lower bounds are
+    % different here.
+    s_0 = state_encode( user, 0, u_p, d_p );
+    dummyD = ones( Nmodes, Nsamples );
+    s_L = state_encode( user, -Inf, repmat( user.u_min, 1, Nsamples ) - user.data.u, 0 * dummyD - user.data.d );
+    s_U = state_encode( user, 0, repmat( user.u_max, 1, Nsamples ) - user.data.u, dummyD - user.data.d );
+    [ F, c, A, b_L, b_U ] = encode_LP_cons( user ); % generates the cost and matrics QP formulation
+    
+    % gurobi cannot handle upper and lower bound constraints simulateneously
+    % so we have reformat things to make it more amenable
+    Aineq = [ -A; A ];
+    bineq = [ -b_L; b_U ];
+    
+    % setup problem for gurobi to solve
+    Prob.A = sparse( Aineq );
+    Prob.Q = sparse( 0.5 * F );
+    Prob.obj = c;
+    Prob.rhs = bineq;
+    Prob.sense = '<';
+    Prob.lb = s_L;
+    Prob.ub = s_U;
+    
+    %     call gurobi to solve:
+    %     min     x'*Q*x+obj*x
+    %     st.     A*x     <= rhs
+    %             lb <= x <= ub
+    stupidparams.outputflag = 0;
+    tlres = gurobi( Prob, stupidparams );
+    
+    % time to decode the output
+    res.s_end = tlres.x;
+    res.value = tlres.objval;
+    res.inform = tlres.status;
+    
+    
+    [ res.zeta, up_u, dp_d ] = state_decode( user, res.s_end );
+    res.u_p = up_u + user.data.u;
+    res.d_p = dp_d + user.data.d;
+    res.s_0 = s_0; % keep in mind this is dp_d
+    res.time = tend + tlres.runtime;
+    res.user = user;
+    res.tlres = tlres;
+    if ( res.value > user.numerical_tolerance )
+        warning('what the fuck');
+    end
+elseif( strcmp( user.optfctn.solver, 'mosek' ) == 1 )
+    % the optimization is taking place here over (up - u) and
+    % (dp - d) therefore all the upper and lower bounds are
+    % different here.
+    s_0 = state_encode( user, 0, u_p, d_p );
+    dummyD = ones( Nmodes, Nsamples );
+    s_L = state_encode( user, -Inf, repmat( user.u_min, 1, Nsamples ) - user.data.u, 0 * dummyD - user.data.d );
+    s_U = state_encode( user, 0, repmat( user.u_max, 1, Nsamples ) - user.data.u, dummyD - user.data.d );
+    [ F, c, A, b_L, b_U ] = encode_LP_cons( user ); % generates the cost and matrics QP formulation
+    
+    %     call mosek to solve:
+    %     min     1/2*x'*Q*x+c*x
+    %     st.     b_L <=  A*x <= b_U
+    %             lb <= x <= ub
+    tic;
+    tlres = mskqpopt( F, c, A, b_L, b_U, s_L, s_U, [], 'minimize echo(0)' );
+    res.time = tend + toc();
+    
+    % time to decode the output
+    res.s_end = tlres.sol.itr.xx;
+    res.value = tlres.sol.itr.pobjval;
+    res.inform = tlres.sol.itr.solsta;
+    
+    
+    [ res.zeta, up_u, dp_d ] = state_decode( user, res.s_end );
+    res.u_p = up_u + user.data.u;
+    res.d_p = dp_d + user.data.d;
+    res.s_0 = s_0; % keep in mind this is dp_d
+    res.user = user;
+    res.tlres = tlres;
+    if ( res.value > user.numerical_tolerance )
+        warning('what the fuck');
     end
 else
     error( 'Unsupported OCP solver: %s', user.optfctn.solver );
