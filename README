@@ -4,7 +4,7 @@ This is the implementation of the Relaxed Switched System Optimal Control algori
 
 - R. Vasudevan, H. Gonzalez, R. Bajcsy, S. S. Sastry. “Consistent Approximations for the Optimal Control of Constrained Switched Systems — Part 2: An Implementable Algorithm.” SIAM Journal on Optimization and Control, 2013.
 
-The code currently relies on the use of TOMLAB to solve the internal quadratic program at each step, but it can be modified to use any reasonably well-implemented QP solver. This is at the top of our list of future improvements.
+Our algorithm can work with the following numerical optimization solver packages: TOMLAB (any QP solver), CPLEX (cplexqp), Matlab (quadprog), Gurobi, and Mosek (mskqpopt).
 
 Please send us an email if you find any bugs. We know some parts of the code are ugly and innefficient. We welcome any improvement you want to implement.
 
