@@ -157,13 +157,14 @@ elseif( strcmp( user.optfctn.solver, 'quadprog' ) == 1 )
     Aineq = [ -A(~eqidxs & ~blinf,:); A(~eqidxs & ~buinf,:) ];
     bineq = [ -b_L(~eqidxs & ~blinf); b_U(~eqidxs & ~buinf) ];
 
-    % set default quadprog_solver if not defined
     if( isfield( user.optfctn, 'quadprog_solver' ) )
-        stupidoptions = optimoptions( @quadprog, 'Algorithm', user.optfctn.quadprog_solver );
+        stupidoptions = optimset( 'Algorithm', user.optfctn.quadprog_solver, 'Display', 'off' );
+        % stupidoptions = optimoptions( @quadprog, 'Algorithm', user.optfctn.quadprog_solver, 'Display', 'off'  );
     else
-        stupidoptions = optimoptions( @quadprog, 'Algorithm', 'interior-point-convex' ); % another option is 'active-set'
+        % Use 'interior-point-convex' as default. Another option is 'active-set'.
+        stupidoptions = optimset( 'Algorithm', 'interior-point-convex', 'Display', 'off' );
+        % stupidoptions = optimoptions( @quadprog, 'Algorithm', 'interior-point-convex', 'Display', 'off' );
     end
-    stupidoptions = optimoptions( stupidoptions, 'Display', 'off' );
 
     %     call quadprog to solve:
     %     min     0.5*x'*F*x + c*x
