@@ -17,7 +17,7 @@ N0 = log2( Nsamples );
 
 tic();
 if( len_cons > 0 )
-    
+
     if ( higher_order )
         [ x, cost ] = multistep_integ( user, tau, u, d );
         Psi = max_cons_fctn( user, tau, u, d, [ x; cost ] );
@@ -30,11 +30,11 @@ if( len_cons > 0 )
         else
             J = obj_fctn( user, tau, u, d );
         end
-        
+
         success = 0;
         for k = 1:( N0 + eta )
             [ taurho, urho, drho ] = rho_fctn( user, k, tau, uprime, dprime );
-            
+
             if ( higher_order )
                 [ xrho, costrho ] = multistep_integ( user, taurho, urho, drho );
                 Jnew = obj_fctn( user, taurho, urho, drho, [ xrho; costrho ] );
@@ -43,7 +43,7 @@ if( len_cons > 0 )
                 Jnew = obj_fctn( user, taurho, urho, drho );
                 Psinew = max_cons_fctn( user, taurho, urho, drho );
             end
-            
+
 %             LHS = Jnew - J
 %             RHS = ( alpha * beta^mu - alphabar * betabar^k ) * theta
 %             LHS_post = alphabar * betabar^k
@@ -73,7 +73,7 @@ if( len_cons > 0 )
             else
                 Psinew = max_cons_fctn( user, taurho, urho, drho );
             end
-            
+
             if( Psinew - Psi <= ( alpha * beta^mu - alphabar * betabar^k ) * theta && ...
                     alphabar * betabar^k <= ( 1 - omega ) * alpha * beta^mu ) % HG: we can do better than this logic
                 success = 1;
@@ -91,7 +91,7 @@ else % unconstrained problem.
     else
         J = obj_fctn( user, tau, u, d );
     end
-    
+
     success = 0;
     for k = 1:( N0 + eta )
         [ taurho, urho, drho ] = rho_fctn( user, k, tau, uprime, dprime );
@@ -101,7 +101,7 @@ else % unconstrained problem.
         else
             Jnew = obj_fctn( user, taurho, urho, drho );
         end
-        
+
         %     Jnew - J
         %      ( alpha * beta^mu - alphabar * betabar^k ) * theta
         %      alphabar * betabar^k

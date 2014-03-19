@@ -20,7 +20,7 @@ if( len_cons > 0 )
         else
             J = obj_fctn( user, tau, u, d );
         end
-        
+
         success = 0;
         for k = 0:kmax
             if ( higher_order )
@@ -31,7 +31,7 @@ if( len_cons > 0 )
                 Jnew = obj_fctn( user, tau, u + beta^k * ( unew - u ), d + beta^k * ( dnew - d ) );
                 Psinew = max_cons_fctn( user, tau, u + beta^k * ( unew - u ), d + beta^k * ( dnew - d ) );
             end
-            
+
             if( Jnew - J <= alpha * beta^k * theta && ...
                     Psinew <= alpha * beta^k * theta )
                 success = 1;
@@ -50,7 +50,7 @@ if( len_cons > 0 )
             else
                 Psinew = max_cons_fctn( user, tau, u + beta^k * ( unew - u ), d + beta^k * ( dnew - d ) );
             end
-            
+
             if( Psinew - Psi <= alpha * beta^k * theta )
                 success = 1;
                 break;
@@ -67,7 +67,7 @@ else % unconstrained problem.
     else
         J = obj_fctn( user, tau, u, d );
     end
-    
+
     success = 0;
     for k = 0:kmax
         if ( higher_order )
@@ -76,7 +76,7 @@ else % unconstrained problem.
         else
             Jnew = obj_fctn( user, tau, u + beta^k * ( unew - u ), d + beta^k * ( dnew - d ) );
         end
-        
+
         if( Jnew - J <= alpha * beta^k * theta )
             success = 1;
             break;
@@ -90,4 +90,3 @@ tend = toc();
 
 res.k = k;
 res.time = tend;
-

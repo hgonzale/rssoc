@@ -103,7 +103,7 @@ if( strcmp( user.optfctn.solver, 'tomlab' ) == 1 )
     res.user = user;
     res.tlres = tlres;
     if ( res.value > user.numerical_tolerance )
-        warning('what the fuck');
+        warning('the optimality function is positive!');
     end
 elseif( strcmp( user.optfctn.solver, 'cplex' ) == 1 )
     % the optimization is taking place here over (up - u) and
@@ -135,7 +135,7 @@ elseif( strcmp( user.optfctn.solver, 'cplex' ) == 1 )
     res.user = user;
     res.tlres = tlres;
     if ( res.value > user.numerical_tolerance )
-        warning('what the fuck');
+        warning('the optimality function is positive!');
     end
 elseif( strcmp( user.optfctn.solver, 'quadprog' ) == 1 )
     % the optimization is taking place here over (up - u) and
@@ -182,7 +182,7 @@ elseif( strcmp( user.optfctn.solver, 'quadprog' ) == 1 )
     res.user = user;
     res.tlres = [];
     if ( res.value > user.numerical_tolerance )
-        warning('what the fuck');
+        warning( 'the optimality function is positive!' );
     end
 elseif( strcmp( user.optfctn.solver, 'gurobi' ) == 1 )
     % the optimization is taking place here over (up - u) and
@@ -229,7 +229,7 @@ elseif( strcmp( user.optfctn.solver, 'gurobi' ) == 1 )
     res.user = user;
     res.tlres = tlres;
     if ( res.value > user.numerical_tolerance )
-        warning('what the fuck');
+        warning('the optimality function is positive!');
     end
 elseif( strcmp( user.optfctn.solver, 'mosek' ) == 1 )
     % the optimization is taking place here over (up - u) and
@@ -262,7 +262,7 @@ elseif( strcmp( user.optfctn.solver, 'mosek' ) == 1 )
     res.user = user;
     res.tlres = tlres;
     if ( res.value > user.numerical_tolerance )
-        warning('what the fuck');
+        warning('the optimality function is positive!');
     end
 else
     error( 'Unsupported OCP solver: %s', user.optfctn.solver );
