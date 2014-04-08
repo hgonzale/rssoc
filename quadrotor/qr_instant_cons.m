@@ -12,6 +12,8 @@ qz = user.idxs.qz;
 qtheta = user.idxs.qtheta;
 qphi = user.idxs.qphi;
 
+assert( len_cons == 10 );
+
 fx = zeros( len_cons, 1 );
 fx(1) = -x(qx) + x_min(qx); %lower constraint on qx 
 fx(2) = x(qx) - x_max(qx); %upper constraint on qx 

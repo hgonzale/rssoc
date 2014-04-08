@@ -65,7 +65,7 @@ for iter = 1:user.max_iter
   if( mod( iter, user.pwm_iter ) == 0 )
     fprintf( 1, '\tRunning pwm_fctn\n' );
     res_pwm = pwm_fctn( user, iter_tau, iter_u, iter_d, ...
-                        res_optfctn.value, res_optfctn.u_p, res_optfctn.d_p, res_insmode.k);
+      res_optfctn.value, res_optfctn.u_p, res_optfctn.d_p, res_insmode.k );
 
     result.res_pwm( iter ) = res_pwm;
 
