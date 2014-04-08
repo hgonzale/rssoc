@@ -1,7 +1,11 @@
 function [ grad, num_grad ] = check_cons_fctn( user, tau, u, d )
 
-x0 = [ u(:); d(:) ];
-user.data.tau = tau;
+if( nargin == 1 )
+  x0 = [user.data.u(:); user.data.d(:)];
+else
+  x0 = [ u(:); d(:) ];
+  user.data.tau = tau;
+end
 
 [ grad, num_grad ] = check_gradient( @my_f, @my_g, x0, user );
 
@@ -23,9 +27,9 @@ x = fwd_euler( Prob.user.x0, Prob.user.data.tau, u, d, Prob.user );
 
 out = zeros( len_cineq - 1, 1 ); % no dJ and no zeta ( hence its -1 in row and column )
 
-for k = 1:( Nsamples + 1 )
-    idx = ( k - 1 ) * len_cons + 1;
-    out( idx:( idx + len_cons - 1 ) ) = instant_cons( x( :, k ), Prob.user );
+for k = 2:( Nsamples + 1 )
+  idx = ( k - 2 ) * len_cons + 1;
+  out( idx:( idx + len_cons - 1 ) ) = instant_cons( x( :, k ), Prob.user );
 end
 
 end

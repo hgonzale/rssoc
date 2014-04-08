@@ -1,7 +1,11 @@
 function [ grad, num_grad ] = check_obj_fctn( user, tau, u, d )
 
-x0 = [ u(:); d(:) ];
-user.data.tau = tau;
+if( nargin == 1 )
+  x0 = [user.data.u(:); user.data.d(:)];
+else
+  x0 = [ u(:); d(:) ];
+  user.data.tau = tau;
+end
 
 [ grad, num_grad ] = check_gradient( @my_f, @my_g, x0, user );
 

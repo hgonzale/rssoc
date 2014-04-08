@@ -19,7 +19,7 @@ dMdu = user.data.dMdu;
 M = user.data.M;
 
 if( len_cons > 0 )
-    dhdx = user.data.dhdx;
+  dhdx = user.data.dhdx;
 end
 
 % the vector over which we are optimizing
@@ -35,9 +35,9 @@ out( :, 1) = repmat( -1, len_cineq, 1);
 
 % derivative of \xi' - \xi function
 for k = 1:Nsamples
-    dt = tau( k + 1 ) - tau( k );
-    out( :, uidx( :, k ) ) = repmat( 2 * dt * ( u_p( :, k ) - u( :, k ) )', len_cineq, 1 );
-    out( :, didx( :, k ) ) = repmat( 2 * dt * ( d_p( :, k ) - d( :, k ) )', len_cineq, 1 );
+  dt = tau( k + 1 ) - tau( k );
+  out( :, uidx( :, k ) ) = repmat( 2 * dt * ( u_p( :, k ) - u( :, k ) )', len_cineq, 1 );
+  out( :, didx( :, k ) ) = repmat( 2 * dt * ( d_p( :, k ) - d( :, k ) )', len_cineq, 1 );
 end
 
 % derivative of dJ
@@ -45,10 +45,10 @@ out( 1, : ) = out( 1, : ) + dcost * dDxdp( :, :, end );
 
 % derivative of each of the dpsi_{j,t}
 if ( len_cons > 0 )
-    for k = 1:( Nsamples + 1 )
-        for j = 1:len_cons
-            idx = ( k - 1 ) * len_cons + j + 1;
-            out( idx, : ) = out( idx, : ) + dhdx( j, :, k ) * dDxdp( 1:Nstates, :, k );
-        end
+  for k = 2:( Nsamples + 1 )
+    for j = 1:len_cons
+      idx = ( k - 2 ) * len_cons + j + 1;
+      out( idx, : ) = out( idx, : ) + dhdx( j, :, k ) * dDxdp( 1:Nstates, :, k );
     end
+  end
 end

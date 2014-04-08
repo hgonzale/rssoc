@@ -19,9 +19,9 @@ user = update_lengths( user );
 % the size of the optimization variables ( discrete inputs, continuous
 % inputs and the minmax )
 user.len_s = ( Nsamples ) * ( Nmodes + Ninputs ) + 1 ;
-% the number of inequality constraints ( each of the constraints and the
+% the number of inequality constraints ( each of the constraints, without counting the initial condition, and the
 % cost )
-user.len_cineq = ( Nsamples + 1 ) * user.len_cons + 1;
+user.len_cineq = Nsamples * user.len_cons + 1;
 
 user = create_idxs_struct( user ); % Create idxs struct
 

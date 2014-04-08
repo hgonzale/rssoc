@@ -14,16 +14,14 @@ didx = user.idxs.d; % [ Nmodes, Nsamples + 1 ]
 
 % precomputed data
 tau = user.data.tau;
-u = user.data.u;
-d = user.data.d;
 dcost = user.data.dcost;
 dPhi = user.data.dPhi;
 dMdu = user.data.dMdu;
 M = user.data.M;
 
 if ( len_cons > 0 )
-    Psi = user.data.Psi;
-    dhdx = user.data.dhdx;
+  Psi = user.data.Psi;
+  dhdx = user.data.dhdx;
 end
 
 % computing a large array that we use to fill in everything ( compare with
@@ -33,22 +31,22 @@ deltaTu = zeros( length( uidx( : ) ), 1 );
 dummy1 = 1:Nmodes;
 dummy2 = 1:Ninputs;
 for k = 1:Nsamples
-    dt = tau( k + 1 ) - tau( k );
-    deltaTd( dummy1 ) = dt;
-    deltaTu( dummy2 ) = dt;
-    dummy1 = dummy1 + Nmodes;
-    dummy2 = dummy2 + Ninputs;
+  dt = tau( k + 1 ) - tau( k );
+  deltaTd( dummy1 ) = dt;
+  deltaTu( dummy2 ) = dt;
+  dummy1 = dummy1 + Nmodes;
+  dummy2 = dummy2 + Ninputs;
 end
 
 dDxdp = zeros( Nstates + 1, user.len_s, Nsamples + 1 );
 for k = 1:( Nsamples + 1 )
-    for l = 1:( k - 1 )
-        dt = tau( l + 1 ) - tau( l );
-        for i = 1:Nmodes
-            dDxdp( :, didx( i, l ), k ) = dt * dPhi( :, :, k, l + 1 ) * M( :, i, l );
-        end
-        dDxdp( :, uidx( :, l ), k ) = dt * dPhi( :, :, k, l + 1 ) * dMdu( :, :, l );
+  for ell = 1:( k - 1 )
+    dt = tau( ell + 1 ) - tau( ell );
+    for i = 1:Nmodes
+      dDxdp( :, didx( i, ell ), k ) = dt * dPhi( :, :, k, ell + 1 ) * M( :, i, ell );
     end
+    dDxdp( :, uidx( :, ell ), k ) = dt * dPhi( :, :, k, ell + 1 ) * dMdu( :, :, ell );
+  end
 end
 
 % objective function
@@ -65,33 +63,33 @@ b_L = -Inf * ones( Nsamples + len_cineq, 1 );
 b_U = zeros( Nsamples + len_cineq, 1 );
 
 % discrete input constraints
-[ A( 1:Nsamples, : ), ~, ~ ] = dinput_encode_lin_cons( user );
-b_L( 1:Nsamples ) = zeros( Nsamples, 1 );
+[ A(1:Nsamples,:), ~, ~ ] = dinput_encode_lin_cons( user );
+b_L( 1:Nsamples, 1 ) = zeros( Nsamples, 1 );
 
 % portion of the constraint that is identical for all the remaining
 % constraints
 for idx = ( Nsamples + 1 ):( len_cineq + Nsamples )
-    A( idx, 1 ) = -1; % this is the dummy variable zeta
+  A( idx, 1 ) = -1; % this is the dummy variable zeta
 end
 
 % constraint due to DJ
 idx = Nsamples + 1;
 A( idx, : ) = A( idx, : ) + ( dcost * dDxdp( :, :, end ) ); % the portion actually due to DJ multiplied by up and dp
 if ( len_cons > 0 )
-    if( Psi > 0 )
-        b_U( idx ) = b_U( idx ) + Psi;
-    end
+  if( Psi > 0 )
+    b_U( idx ) = b_U( idx ) + Psi;
+  end
 end
 
 % constraint due to each of the dPsi
 if ( len_cons > 0 )
-    for k = 1:( Nsamples + 1 )
-        for j = 1:len_cons
-            idx = ( k - 1 ) * len_cons + j + Nsamples + 1;
-            A( idx, : ) = A( idx, : ) + ( dhdx( j, :, k ) * dDxdp( 1:Nstates, :, k ) ); % the portion actually due to Dpsi DJ multiplied by up and dp
-            if ( Psi <= 0 )
-                b_U( idx ) = b_U( idx ) - ( gamma * Psi );
-            end
-        end
+  for k = 2:( Nsamples + 1 )
+    for j = 1:len_cons
+      idx = ( k - 2 ) * len_cons + j + Nsamples + 1;
+      A( idx, : ) = A( idx, : ) + ( dhdx( j, :, k ) * dDxdp( 1:Nstates, :, k ) ); % the portion actually due to Dpsi DJ multiplied by up and dp
+      if ( Psi <= 0 )
+        b_U( idx ) = b_U( idx ) - ( gamma * Psi );
+      end
     end
+  end
 end

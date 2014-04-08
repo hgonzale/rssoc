@@ -17,7 +17,7 @@ h = 1e-6;
 
 num_grad = zeros( len_f, len_x );
 
-for k = 1:len_x,
+parfor k = 1:len_x,
   hvec = zeros( size(x) );
   hvec(k) = h;
   fph = f( x + hvec, Prob );
