@@ -2,12 +2,12 @@ function result = run_relax( config_file )
 
 user = read_config( config_file );
 beta = user.armijo.beta;
-len_cons = user.len_cons;
 
 % set the Nsamples and  and construct the u0 and d0 that we initialize with
 iter_Nsamples = user.Nsamples;
 iter_tau = linspace( user.t0, user.tf, iter_Nsamples + 1 );
 user = update_user( user );
+len_cons = user.len_cons;
 
 % check to make sure that each sample of the discrete mode sums to one
 assert( max( abs( sum( user.d0, 1 ) - ones( 1, size( user.d0, 2 ) ) ) ) < 10 * eps );
